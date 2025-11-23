@@ -17,6 +17,7 @@ class Control {
     sf::Font font;
     sf::Text jumlah;
     sf::RenderWindow *window;
+    sf:: RenderWindow *mainWindow;
 
     vector<Ball> *balls;
     int ballCount = 0;
@@ -46,6 +47,7 @@ class Control {
             jumlah(font)
         {
             window = win;
+            mainWindow = mainWindow;
             this->balls = balls;
 
             if (!font.openFromFile("../assets/JAi.ttf")) {
@@ -62,8 +64,10 @@ class Control {
         void update(){
             window->clear(sf::Color(50,50,50));
             while (optional<sf::Event> event = window->pollEvent()){
-                if (event->is<sf::Event::Closed>())
-                window->close();
+                if (event->is<sf::Event::Closed>()){
+                    window->close();
+                    mainWindow->close();
+                }
 
                 if (event->is<sf::Event::MouseButtonPressed>()){
                     cout << "mouse pos: " << sf::Mouse::getPosition(*window).x << " " << sf::Mouse::getPosition(*window).y << endl;

@@ -9,7 +9,6 @@ using namespace std;
 
 class Ball {
     private:
-        sf::CircleShape shape;
         sf::RenderWindow* window;
 
         sf::Color randomColor(){
@@ -20,37 +19,41 @@ class Ball {
         }
         
         void bounceOffWalls(){
-            if ((pos.x+vel.x) - w < 0 || (pos.x + vel.x) + w > window->getSize().x){
+            if ((pos.x+vel.x) - mass < 0 || (pos.x + vel.x) + mass > window->getSize().x){
                 vel.x = -vel.x;
             }
-            if ((pos.y + vel.y) - w < 0 || (pos.y + vel.y) + w > window->getSize().y){
+            if ((pos.y + vel.y) - mass < 0 || (pos.y + vel.y) + mass > window->getSize().y){
                 vel.y = -vel.y;
             }
         }
 
     public:
-        float w;
+        float mass;
         sf::Vector2f vel;
         sf::Vector2f acc;
         sf::Vector2f pos;
+        sf::Vector2f momentum;
+        sf::CircleShape shape;
 
-        Ball(sf::RenderWindow *win, float weight){
+        Ball(sf::RenderWindow *win, float mass){
             window = win;
-            w = weight;
-            shape.setRadius(w);
+            this->mass = mass;
+            shape.setRadius(mass);
             shape.setFillColor(randomColor());
 
-            pos = sf::Vector2f(rand() % (window->getSize().x - (int)(2*w)) + w, rand() % (window->getSize().y - (int)(2*w)) + w);
+            pos = sf::Vector2f(rand() % (window->getSize().x - (int)(2*mass)) + mass, rand() % (window->getSize().y - (int)(2*mass)) + mass);
             vel = sf::Vector2f(rand() % 10, rand() %10);
             acc = sf::Vector2f(0,0);
+            momentum = sf::Vector2f(mass*vel.x, mass*vel.y);
             shape.setPosition(pos);
-            shape.setOrigin(sf::Vector2f(w, w));
+            shape.setOrigin(sf::Vector2f(mass, mass));
         }
 
         void update(){
             vel += acc;
             bounceOffWalls();
             pos += vel;
+            momentum = sf::Vector2f(mass*vel.x, mass*vel.y);
             shape.setPosition(pos);
             window->draw(shape);
         }
