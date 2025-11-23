@@ -12,11 +12,13 @@ int main(){
     sf::RenderWindow ControlWindow(sf::VideoMode({500,500}), "Control Panel");
     vector<Ball> balls;
     
-    Control control(&ControlWindow, &Window, &balls);
-
+    
     Window.setPosition(sf::Vector2i(200, 100));
     ControlWindow.setPosition(sf::Vector2i(1200, 100));
-
+    
+    float gravity = 0.5f;
+    
+    Control control(&ControlWindow, &Window, &balls, &gravity);
     
     while (Window.isOpen()){
         while (optional<sf::Event> event = Window.pollEvent()){
@@ -31,24 +33,24 @@ int main(){
         for (int i = 0; i  < balls.size(); i++){
             for (int j = i+1; j < balls.size(); j++){
                 float distance = sqrt(pow(balls[i].pos.x - balls[j].pos.x, 2) + pow(balls[i].pos.y - balls[j].pos.y, 2));
-                float nextDistance = sqrt(pow((balls[i].pos.x + balls[i].vel.x)  - (balls[j].pos.x + balls[i].vel.x), 2) + pow((balls[i].pos.y + balls[i].vel.y)  - (balls[j].pos.y + balls[i].vel.y), 2));
                 float combineRadius = balls[i].mass + balls[j].mass;
+                float overlap = combineRadius - distance;
 
-                if (nextDistance >= combineRadius) continue;
+                if (overlap < 0) continue;
+
+                balls[i].pos += (balls[i].pos - balls[j].pos) / distance * (overlap / 2.0f);
+                balls[j].pos += (balls[j].pos - balls[i].pos) / distance * (overlap / 2.0f);
 
                 sf::Vector2f calcVelI = ((balls[i].mass - balls[j].mass)*balls[i].vel + 2*balls[j].mass*balls[j].vel)/(combineRadius);
                 sf::Vector2f calcVelJ = ((balls[j].mass - balls[i].mass)*balls[j].vel + 2*balls[i].mass*balls[i].vel)/(combineRadius);
 
-                float CalcVelIMag = sqrt(calcVelI.x*calcVelI.x + calcVelI.y*calcVelI.y);
-
                 balls[i].vel = calcVelI;
                 balls[j].vel = calcVelJ;
-
-
             }
         }
 
         for (int i = 0; i < balls.size(); i++){
+            balls[i].acc = sf::Vector2f(0, gravity);
             balls[i].update();
         }
         

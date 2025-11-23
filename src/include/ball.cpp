@@ -19,10 +19,21 @@ class Ball {
         }
         
         void bounceOffWalls(){
-            if ((pos.x+vel.x) - mass < 0 || (pos.x + vel.x) + mass > window->getSize().x){
+            if (pos.x - mass < 0){
+                pos.x = mass;
                 vel.x = -vel.x;
             }
-            if ((pos.y + vel.y) - mass < 0 || (pos.y + vel.y) + mass > window->getSize().y){
+            if (pos.x + mass > window->getSize().x){
+                pos.x = window->getSize().x - mass;
+                vel.x = -vel.x;
+            }
+
+            if (pos.y - mass < 0){
+                pos.y = mass;
+                vel.y = -vel.y;
+            }
+            if (pos.y + mass > window->getSize().y){
+                pos.y = window->getSize().y - mass;
                 vel.y = -vel.y;
             }
         }
@@ -50,8 +61,13 @@ class Ball {
         }
 
         void update(){
-            vel += acc;
             bounceOffWalls();
+
+            vel += acc;
+
+            if (abs(vel.x) < 0.05) vel.x = 0;
+            if (abs(vel.y) < 0.05) vel.y = 0;
+
             pos += vel;
             momentum = sf::Vector2f(mass*vel.x, mass*vel.y);
             shape.setPosition(pos);
