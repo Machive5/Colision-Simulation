@@ -45,6 +45,10 @@ class Button {
             callback = cb;
         }
 
+        void setText(string text) {
+            label.setString(text);
+        }
+
         void render(sf::RenderWindow *window) {
             window->draw(shape);
             window->draw(label);

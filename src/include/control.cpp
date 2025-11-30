@@ -15,34 +15,36 @@ class Control {
     Button removeBall;
     Button addGravity;
     Button removeGravity;
-
+    Button modeSwitch;
+    
     sf::Font font;
     sf::Text ballAmountText;
     sf::Text gravityText;
-
-
+    
+    
     sf::RenderWindow *window;
     sf:: RenderWindow *mainWindow;
-
+    
     vector<Ball> *balls;
-    int ballAmount = 0;
+    int ballAmount = 5000;
     float *gravity = 0;
+    bool *isQuadTreeMode = 0;
     
     public:
         
-        Control(sf::RenderWindow *win, sf::RenderWindow *mainWindow, vector<Ball> *balls, float *gravity):
-            applyButton(sf::Vector2f(100,50), sf::Vector2f(250, 240), sf::Color::Blue, "generate", [this, balls, mainWindow](){
+        Control(sf::RenderWindow *win, sf::RenderWindow *mainWindow, vector<Ball> *balls, float *gravity, bool *mode):
+            applyButton(sf::Vector2f(150,50), sf::Vector2f(250, 240), sf::Color::Blue, "generate", [this, balls, mainWindow](){
                 vector<Ball> newBalls;
                 for (int i = 0; i < ballAmount; i++){
                     // srand(static_cast<unsigned int>(time(0)) + i);
                     newBalls.push_back(Ball(mainWindow, rand() % 20 + 10));
-                    cout << "Ball " << i << " Created on pos " << newBalls[i].pos.x << " " << newBalls[i].pos.y << endl;
+                    // cout << "Ball " << i << " Created on pos " << newBalls[i].pos.x << " " << newBalls[i].pos.y << endl;
                 }
                 *balls = newBalls;
             }),
             addBall(sf::Vector2f(50,50), sf::Vector2f(400, 100), sf::Color::Green, " (+) ", [this](){
                 ballAmount += 10;
-                if (ballAmount > 150) ballAmount = 150;
+                if (ballAmount > 1000000) ballAmount = 1000000;
             }),
             removeBall(sf::Vector2f(50,50), sf::Vector2f(400, 160), sf::Color::Red, " (-) ", [this](){
                 ballAmount -= 10;
@@ -56,6 +58,15 @@ class Control {
             removeGravity(sf::Vector2f(50,50), sf::Vector2f(400, 390), sf::Color::Red, " (-) ", [this, gravity](){
                 *gravity -= 0.1f;
                 if (*gravity < 0.0f) *gravity = 0.0f;
+            }),
+            modeSwitch(sf::Vector2f(200,50), sf::Vector2f(250, 460), sf::Color::Blue, "BruteForce", [this, mode](){
+                *mode = !*mode;
+                if (*mode){
+                    modeSwitch.setText("QuadTree");
+                } else {
+                    modeSwitch.setText("BruteForce");
+                }
+                
             }),
             font(),
             ballAmountText(font),
@@ -91,15 +102,18 @@ class Control {
                     mainWindow->close();
                 }
 
-                if (event->is<sf::Event::MouseButtonPressed>()){
-                    cout << "mouse pos: " << sf::Mouse::getPosition(*window).x << " " << sf::Mouse::getPosition(*window).y << endl;
-                }
+                // if (event->is<sf::Event::MouseButtonPressed>()){
+                //     cout << "mouse pos: " << sf::Mouse::getPosition(*window).x << " " << sf::Mouse::getPosition(*window).y << endl;
+                // }
+                
                 applyButton.update(sf::Vector2f(sf::Mouse::getPosition(*window)), sf::Mouse::isButtonPressed(sf::Mouse::Button::Left));
                 addBall.update(sf::Vector2f(sf::Mouse::getPosition(*window)), sf::Mouse::isButtonPressed(sf::Mouse::Button::Left));
                 removeBall.update(sf::Vector2f(sf::Mouse::getPosition(*window)), sf::Mouse::isButtonPressed(sf::Mouse::Button::Left));
 
                 addGravity.update(sf::Vector2f(sf::Mouse::getPosition(*window)), sf::Mouse::isButtonPressed(sf::Mouse::Button::Left));
                 removeGravity.update(sf::Vector2f(sf::Mouse::getPosition(*window)), sf::Mouse::isButtonPressed(sf::Mouse::Button::Left));
+
+                modeSwitch.update(sf::Vector2f(sf::Mouse::getPosition(*window)), sf::Mouse::isButtonPressed(sf::Mouse::Button::Left));
             }
 
             ballAmountText.setString("Number of Balls: " + to_string(ballAmount));
@@ -111,6 +125,8 @@ class Control {
 
             addGravity.render(window);
             removeGravity.render(window);
+
+            modeSwitch.render(window);
 
             window->draw(ballAmountText);
             window->draw(gravityText);
