@@ -33,8 +33,8 @@ void bruteforce(vector<Ball> &balls){
 
 }
 
-void quadTreeCollision(vector<Ball> &balls, QuadTree &qt){
-    qt.clear();
+void quadTreeCollision(vector<Ball> &balls){
+    QuadTree qt(sf::FloatRect({0,0},{800,600}), 4);
 
     for (int i = 0; i < balls.size(); i++){
         qt.insert(&balls[i]);
@@ -87,7 +87,6 @@ int main(){
     sf::RenderWindow Window(sf::VideoMode({800,600}), "SFML Render Window");
     sf::RenderWindow ControlWindow(sf::VideoMode({500,500}), "Control Panel");
     vector<Ball> balls;
-    QuadTree qt(sf::FloatRect({0,0},{800,600}), 4);
     
     
     Window.setPosition(sf::Vector2i(200, 100));
@@ -110,7 +109,7 @@ int main(){
         control.update();
 
         if (Mode){
-            quadTreeCollision(balls, qt);
+            quadTreeCollision(balls);
         } else {
             bruteforce(balls);
         }
